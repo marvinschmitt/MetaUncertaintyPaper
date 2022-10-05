@@ -3,6 +3,7 @@ set.seed(132)
 library(magrittr)
 library(ggplot2)
 library(latex2exp)
+library(MetaUncertaintyPaper)
 
 # Model Formulation ####
 model_1 = list(
@@ -44,7 +45,7 @@ model_3 = list(
 M = list(model_1, model_2, model_3)
 
 K = 500
-N_list = c(5, 20, 50, 120)
+N_list = c(5, 20, 120)
 
 # Level 2 Uncertainty ####
 
@@ -66,7 +67,7 @@ ggplot(aes(pmp=ggsimplex::make_list_column(pmp_1, pmp_2, pmp_3))) +
   ggsimplex::geom_simplex_point(color="#22A88477") +
   facet_grid(rows=vars(N), cols=vars(true_model), labeller = label_parsed) +
   theme(strip.text = element_text(size = 12))
-ggsave("output/plots/experiment-1-level-2.pdf", width = 8, height = 12, units = "in")
+ggsave("output/plots/experiment-1-level-2.pdf", width = 8, height = 8, units = "in")
 
 # Fitting Meta Models ####
 
