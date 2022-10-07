@@ -10,3 +10,5 @@
 *.pptx
 
 *.Rdata
+
+python/.ipynb_checkpoints/
