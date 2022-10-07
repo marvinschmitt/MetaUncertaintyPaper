@@ -8,4 +8,5 @@
 
 *.pdf
 *.pptx
-output/
+
+*.Rdata
