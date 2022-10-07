@@ -8,7 +8,7 @@
 #' @return
 #' @export
 #'
-logistic_normal_mixture = function(x, theta, mu_list, Sigma_list){
+logistic_normal_mixture = function(x, theta, mu_list, Sigma_list, ...){
   out = theta[1] * brms::dlogistic_normal(x, mu_list[[1]], Sigma_list[[1]])
   for (i in 2:length(theta)){
     out = out + theta[i] * brms::dlogistic_normal(x, mu_list[[i]], Sigma_list[[i]])

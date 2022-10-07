@@ -1,11 +1,12 @@
 library(magrittr)
 library(ggplot2)
 library(latex2exp)
+library(MetaUncertaintyPaper)
 set.seed(129)
 
 
 # BF Dirichlet visualizations for observed data sets ####
-for (i in 1:2){
+for (i in c(1)){
   alphas = read.csv(paste0("output/computations/experiment-2-alpha-", i, ".csv")) %>%
     t() %>%
     as.vector()
@@ -51,7 +52,7 @@ data[c("pmp1", "pmp2", "pmp3")] <-
     ggsimplex::geom_simplex_canvas(fontsize=12) +
     facet_grid(cols=vars(true_model),
                labeller = label_parsed) +
-    theme(strip.text = element_text(size = 12))
+    theme(strip.text = element_text(size = 18))
   ggsave("output/plots/experiment-2-model-implied-pmp.pdf", width=8, height=3, units="in")
 
 # Fitting Meta Models ####
@@ -76,26 +77,24 @@ data[c("pmp1", "pmp2", "pmp3")] <-
   })
 
   cluster_center_df = data.frame(
-    true_model = rep(1:3, each = n_clusters),
-    cluster = rep(1:n_clusters, times = 3),
+    true_model_idx = rep(1:3, each = n_clusters),
+    cluster_idx = rep(1:n_clusters, times = 3),
     mu = NA,
     Sigma = NA
-  )
-  for (i in 1:nrow(cluster_center_df)){
-    true_model = cluster_center_df[i, "true_model"]
-    cluster_idx = cluster_center_df[i, "cluster"]
-    cluster_center_df$mu[i] = list(cluster_center_list[[true_model]][cluster_idx, 1:2])
-    cluster_center_df$Sigma[i] = list(flat_lower_triag_to_symmetric(cluster_center_list[[true_model]][cluster_idx, 3:5]))
-  }
-
-  cluster_center_df = cluster_center_df %>%
-    dplyr::mutate(true_model = factor(true_model, levels = c(1,2,3),
+  ) %>%
+    dplyr::mutate(true_model = factor(true_model_idx, levels = c(1,2,3),
                                       labels = c(TeX("$M_*=M_1$"),
                                                  TeX("$M_*=M_2$"),
                                                  TeX("$M_*=M_3$")))) %>%
-    dplyr::mutate(cluster = factor(cluster, levels = 1:n_clusters,
+    dplyr::mutate(cluster = factor(cluster_idx, levels = 1:n_clusters,
                                    labels = sapply(paste0("Cluster $", 1:n_clusters, "$"), TeX)))
 
+  for (i in 1:nrow(cluster_center_df)){
+    true_model_idx = cluster_center_df[i, "true_model_idx"]
+    cluster_idx = cluster_center_df[i, "cluster_idx"]
+    cluster_center_df$mu[i] = list(cluster_center_list[[true_model_idx]][cluster_idx, 1:2])
+    cluster_center_df$Sigma[i] = list(flat_lower_triag_to_symmetric(cluster_center_list[[true_model_idx]][cluster_idx, 3:5]))
+  }
 
   ggplot() +
     coord_fixed(ratio = 1, xlim = c(-0.1, 1.1), ylim = c(-0.1, 1.1)) +
@@ -105,23 +104,60 @@ data[c("pmp1", "pmp2", "pmp3")] <-
       data = cluster_center_df,
       fun = brms::dlogistic_normal,
       args = alist(mu = mu, Sigma = Sigma),
-      col_scale = "sqrt"
+      col_scale = "linear"
     ) +
     facet_grid(rows=vars(cluster), cols=vars(true_model), labeller = label_parsed) +
-    theme(strip.text = element_text(size = 12))
-  ggsave("output/plots/experiment-2-clustering.pdf")
-
+    theme(strip.text = element_text(size = 18))
+  ggsave("output/plots/experiment-2-clustering.pdf", width=8, height=8)
 
 
 # Predictive Mixture ###
-for (i in 1:2){
-  alphas = read.csv(paste0("output/computations/experiment-2-alpha-", i, ".csv")) %>%
-    t() %>%
-    as.vector()
-  pmp_obs = alphas/sum(alphas)
-  print(paste0("x_", i, ": ", paste(pmp_obs %>% round(4), collapse=", ")))
+i = 1 # only one observed data set at this point
+alphas = read.csv(paste0("output/computations/experiment-2-alpha-", i, ".csv")) %>%
+  t() %>%
+  as.vector()
+pmp_obs = alphas/sum(alphas)
+print(paste0("x_", i, ": ", paste(pmp_obs %>% round(4), collapse=", ")))
+pmp_obs_df = data.frame(pmp1 = pmp_obs[1],
+                        pmp2 = pmp_obs[2],
+                        pmp3 = pmp_obs[3]
+)
 
-
+for (cluster_idx in 1:n_clusters){
+  mixture_function = purrr::partial(logistic_normal_mixture,
+                                    theta = pmp_obs,
+                                    mu_list = list(
+                                      cluster_center_df[cluster_center_df$cluster_idx==cluster_idx & cluster_center_df$true_model_idx==1, "mu"][[1]],
+                                      cluster_center_df[cluster_center_df$cluster_idx==cluster_idx & cluster_center_df$true_model_idx==2, "mu"][[1]],
+                                      cluster_center_df[cluster_center_df$cluster_idx==cluster_idx & cluster_center_df$true_model_idx==3, "mu"][[1]]
+                                    ),
+                                    Sigma_list = list(
+                                      cluster_center_df[cluster_center_df$cluster_idx==cluster_idx & cluster_center_df$true_model_idx==1, "Sigma"][[1]],
+                                      cluster_center_df[cluster_center_df$cluster_idx==cluster_idx & cluster_center_df$true_model_idx==2, "Sigma"][[1]],
+                                      cluster_center_df[cluster_center_df$cluster_idx==cluster_idx & cluster_center_df$true_model_idx==3, "Sigma"][[1]]
+                                    )
+  )
+  pmp_obs_cartesian = pmp_obs %*% matrix(c(0, 0, 1, 0, 0.5, sqrt(3)/2), byrow=TRUE, ncol=2)
+  ggplot() +
+    coord_fixed(ratio = 1, xlim = c(-0.1, 1.1), ylim = c(-0.1, 1.1)) +
+    theme_void() +
+    ggsimplex::stat_simplex_density(
+      data = data.frame(dummy=0),
+      fun = mixture_function,
+      args = alist(dummy=dummy),
+      col_scale = "linear"
+    ) +
+    ggsimplex::geom_simplex_point(data = pmp_obs_df, aes(pmp = ggsimplex::make_list_column(pmp1, pmp2, pmp3)),
+                                  size = 1.7, shape=21, colour = "white", alpha = 1.0) +
+    ggsimplex::geom_simplex_point(data = pmp_obs_df, aes(pmp = ggsimplex::make_list_column(pmp1, pmp2, pmp3)),
+                                  size = 1.5, shape=16, colour = "magenta", alpha = 1.0) +
+    annotate(
+      geom = "curve", x = 0.1, y = 0.5, xend=pmp_obs_cartesian[1]-0.02, yend = pmp_obs_cartesian[2]+0.02,
+      curvature = .3, arrow = arrow(length = unit(2, "mm"))
+    ) +
+    annotate(geom = "text", x = 0.1, y = 0.51, label = TeX(r'($\mathring{\pi})'), hjust = "center", vjust="bottom", size=10) +
+    ggsimplex::geom_simplex_canvas(fontsize=20)
+  ggsave(paste0("output/plots/experiment-2-level-3-postpred-cluster-", cluster_idx, ".pdf"), width=4, height=4)
 }
 
 
