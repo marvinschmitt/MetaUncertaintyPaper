@@ -11,4 +11,4 @@
 
 *.Rdata
 
-python/.ipynb_checkpoints/
+python/.ipynb_checkpoints/*
