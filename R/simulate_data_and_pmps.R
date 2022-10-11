@@ -24,7 +24,7 @@ simulate_data_and_pmps <- function(M, prior_model_prob = NULL,
     beta = NA, sigma2 = NA, N = NA
   )
 
-  df_wide$true_model = factor(df_wide$true_model, levels = c(1,2,3),
+  df_wide$true_model = factor(df_wide$true_model_idx, levels = c(1,2,3),
                               labels = c(latex2exp::TeX("$M_*=M_1$"),
                                          latex2exp::TeX("$M_*=M_2$"),
                                          latex2exp::TeX("$M_*=M_3$")))

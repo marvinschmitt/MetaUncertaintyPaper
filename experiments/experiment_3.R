@@ -11,10 +11,16 @@ for (i in c(1)){
     t() %>%
     as.vector()
   print(alphas)
+  pmp_obs = alphas/sum(alphas)
+  print(paste0("x_", i, ": ", paste(pmp_obs %>% round(4), collapse=", ")))
+  pmp_obs_df = data.frame(pmp1 = pmp_obs[1],
+                          pmp2 = pmp_obs[2],
+                          pmp3 = pmp_obs[3]
+  )
   d = data.frame(NA)
   d$Alpha = list(alphas)
   ggplot() +
-    coord_fixed(ratio = 1, xlim = c(-0.05, 1.05), ylim = c(-0.05, 1.05)) +
+    coord_fixed(ratio = 1, xlim = c(-0.1, 1.1), ylim = c(-0.1, 1.1)) +
     theme_void() +
     ggsimplex::stat_simplex_density(
       data = d,
@@ -22,7 +28,16 @@ for (i in c(1)){
       args = alist(Alpha = Alpha),
       col_scale = "linear"
     ) +
-    ggsimplex::geom_simplex_canvas(fontsize=19)
+    ggsimplex::geom_simplex_canvas(fontsize=19) +
+    ggsimplex::geom_simplex_point(data = pmp_obs_df, aes(pmp = ggsimplex::make_list_column(pmp1, pmp2, pmp3)),
+                                  size = 1.7, shape=21, colour = "white", alpha = 1.0) +
+    ggsimplex::geom_simplex_point(data = pmp_obs_df, aes(pmp = ggsimplex::make_list_column(pmp1, pmp2, pmp3)),
+                                  size = 1.5, shape=16, colour = "magenta", alpha = 1.0) +
+    annotate(
+      geom = "curve", x = 0.1, y = 0.5, xend=pmp_obs_cartesian[1]-0.02, yend = pmp_obs_cartesian[2]+0.02,
+      curvature = .3, arrow = arrow(length = unit(2, "mm"))
+    ) +
+    annotate(geom = "text", x = 0.1, y = 0.51, label = TeX(r'($\mathring{\pi})'), hjust = "center", vjust="bottom", size=10)
   ggsave(paste0("output/plots/experiment-3-bf-dirichlet-", i, ".pdf"), width=4, height=4)
 }
 
@@ -58,8 +73,92 @@ data[c("pmp1", "pmp2", "pmp3")] <-
 # Fitting Meta Models ####
   D = 1000
   data$pmp = with(data, cbind(pmp1, pmp2, pmp3))
-  meta_model_posteriors = get_meta_model_posteriors(data, n_posterior_draws = D)
-  save(meta_model_posteriors, file = "output/computations/experiment_3_meta_model_posteriors.RData")
+  #meta_model_posteriors = get_meta_model_posteriors(data, n_posterior_draws = D)
+  #save(meta_model_posteriors, file = "output/computations/experiment_3_meta_model_posteriors.RData")
+  load("output/computations/experiment_3_meta_model_posteriors.RData")
+  df_level_3 = data.frame(
+    true_model_idx = 1:3
+  ) %>%
+    dplyr::mutate(true_model = factor(true_model_idx, levels = c(1,2,3),
+                                      labels = c(TeX("$M_*=M_1$"),
+                                                 TeX("$M_*=M_2$"),
+                                                 TeX("$M_*=M_3$"))))
+  df_level_3$mu = rep(list(NA), nrow(df_level_3))
+  df_level_3$Sigma = rep(list(NA), nrow(df_level_3))
+  for (j in 1:3){
+    row = which(df_level_3$true_model_idx==j)
+    mu = meta_model_posteriors[[paste0("true_model_", j)]]$mu
+    Sigma = meta_model_posteriors[[paste0("true_model_", j)]]$Sigma
+    df_level_3$mu[row] = list(apply(mu, 2, mean))
+    df_level_3$Sigma[row] = list(apply(Sigma, c(2, 3), mean))
+  }
+
+ggplot() +
+  coord_fixed(ratio = 1, xlim = c(-0.1, 1.1), ylim = c(-0.1, 1.1)) +
+  theme_void() +
+  ggsimplex::geom_simplex_canvas(fontsize=11)  +
+  ggsimplex::stat_simplex_density(
+    data = df_level_3,
+    fun = brms::dlogistic_normal,
+    args = alist(mu = mu, Sigma = Sigma),
+    col_scale = "linear"
+  ) +
+  ggsimplex::geom_simplex_point(data = data,
+                                aes(pmp=ggsimplex::make_list_column(pmp1, pmp2, pmp3)),
+                                alpha = 1.0) +
+  facet_grid(cols=vars(true_model), labeller = label_parsed) +
+  theme(strip.text = element_text(size = 18))
+ggsave("output/plots/experiment-3-level-2-level-3.pdf", width=8, height=3)
+
+
+# predictive mixture ####
+i = 1 # only one observed data set at this point
+alphas = read.csv(paste0("output/computations/experiment-3-alpha-", i, ".csv")) %>%
+  t() %>%
+  as.vector()
+pmp_obs = alphas/sum(alphas)
+print(paste0("x_", i, ": ", paste(pmp_obs %>% round(4), collapse=", ")))
+pmp_obs_df = data.frame(pmp1 = pmp_obs[1],
+                        pmp2 = pmp_obs[2],
+                        pmp3 = pmp_obs[3]
+)
+
+mixture_function = purrr::partial(logistic_normal_mixture,
+                                  theta = pmp_obs,
+                                  mu_list = list(
+                                    df_level_3$mu[df_level_3$true_model_idx==1][[1]],
+                                    df_level_3$mu[df_level_3$true_model_idx==2][[1]],
+                                    df_level_3$mu[df_level_3$true_model_idx==3][[1]]
+                                  ),
+                                  Sigma_list = list(
+                                    df_level_3$Sigma[df_level_3$true_model_idx==1][[1]],
+                                    df_level_3$Sigma[df_level_3$true_model_idx==2][[1]],
+                                    df_level_3$Sigma[df_level_3$true_model_idx==3][[1]]
+                                  )
+)
+
+pmp_obs_cartesian = pmp_obs %*% matrix(c(0, 0, 1, 0, 0.5, sqrt(3)/2), byrow=TRUE, ncol=2)
+ggplot() +
+  coord_fixed(ratio = 1, xlim = c(-0.1, 1.1), ylim = c(-0.1, 1.1)) +
+  theme_void() +
+  ggsimplex::stat_simplex_density(
+    data = data.frame(dummy=0),
+    fun = mixture_function,
+    args = alist(dummy=dummy),
+    col_scale = "linear"
+  ) +
+  ggsimplex::geom_simplex_point(data = pmp_obs_df, aes(pmp = ggsimplex::make_list_column(pmp1, pmp2, pmp3)),
+                                size = 1.7, shape=21, colour = "white", alpha = 1.0) +
+  ggsimplex::geom_simplex_point(data = pmp_obs_df, aes(pmp = ggsimplex::make_list_column(pmp1, pmp2, pmp3)),
+                                size = 1.5, shape=16, colour = "magenta", alpha = 1.0) +
+  annotate(
+    geom = "curve", x = 0.1, y = 0.5, xend=pmp_obs_cartesian[1]-0.02, yend = pmp_obs_cartesian[2]+0.02,
+    curvature = .3, arrow = arrow(length = unit(2, "mm"))
+  ) +
+  annotate(geom = "text", x = 0.1, y = 0.51, label = TeX(r'($\mathring{\pi})'), hjust = "center", vjust="bottom", size=10) +
+  ggsimplex::geom_simplex_canvas(fontsize=20)
+ggsave(paste0("output/plots/experiment-3-level-3-predictive-mixture.pdf"), width=4, height=4)
+
 
 # Clustering ####
   load("output/computations/experiment_3_meta_model_posteriors.RData")
