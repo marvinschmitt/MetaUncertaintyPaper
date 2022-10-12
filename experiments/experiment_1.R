@@ -171,7 +171,7 @@ data_obs_3 = simulate_data_bayesian_linear_regression(model_4, N = N_obs)$data
 set.seed(0)
 data_obs_1 = simulate_data_bayesian_linear_regression(model_1, N = N_obs)$data
 
-set.seed(6)
+set.seed(4)
 data_obs_2 = simulate_data_bayesian_linear_regression(model_2, N = N_obs)$data
 
 data_obs_list = list(data_obs_1, data_obs_2, data_obs_3)
