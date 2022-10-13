@@ -165,14 +165,28 @@ ggsave("output/plots/experiment-1-level-2-level-3.pdf", width=8, height=8)
 
 # Predictive Mixture N=10####
 
-set.seed(3)
-data_obs_3 = simulate_data_bayesian_linear_regression(model_4, N = N_obs)$data
+# for (i in 1:100){
+#   set.seed(i)
+#   data_obs = simulate_data_bayesian_linear_regression(model_3, N = N_obs)$data
+#   prior_model_prob = rep(1/3, 3)
+#   log_ml_obs = c(
+#     calculate_ml_bayesian_linear_regression(model = model_1, data = data_obs, return_log=TRUE),
+#     calculate_ml_bayesian_linear_regression(model = model_2, data = data_obs, return_log=TRUE),
+#     calculate_ml_bayesian_linear_regression(model = model_3, data = data_obs, return_log=TRUE)
+#   )
+#   log_pmp_normalization = log(sum(prior_model_prob * exp(log_ml_obs)))
+#   pmp_obs = exp(log_ml_obs + log(prior_model_prob) - log_pmp_normalization)
+#   print(c(i, pmp_obs %>% round(2)))
+# }
 
 set.seed(0)
 data_obs_1 = simulate_data_bayesian_linear_regression(model_1, N = N_obs)$data
 
-set.seed(4)
-data_obs_2 = simulate_data_bayesian_linear_regression(model_2, N = N_obs)$data
+set.seed(72) # 17, 72
+data_obs_2 = simulate_data_bayesian_linear_regression(model_3, N = N_obs)$data
+
+set.seed(6)
+data_obs_3 = simulate_data_bayesian_linear_regression(model_2, N = N_obs)$data
 
 data_obs_list = list(data_obs_1, data_obs_2, data_obs_3)
 
@@ -193,6 +207,7 @@ for (i in 1:3){
                           pmp2 = pmp_obs[2],
                           pmp3 = pmp_obs[3]
   )
+  print(pmp_obs %>% round(2))
 
 
     mixture_function = purrr::partial(logistic_normal_mixture,
