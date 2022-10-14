@@ -4,8 +4,9 @@
 #' @param theta mixture weights
 #' @param mu_list (list of) location parameters
 #' @param Sigma_list (list of) shape parameters
+#' @param ... additional parameters, currently not used
 #'
-#' @return
+#' @return logistic normal mixture density
 #' @export
 #'
 logistic_normal_mixture = function(x, theta, mu_list, Sigma_list, ...){

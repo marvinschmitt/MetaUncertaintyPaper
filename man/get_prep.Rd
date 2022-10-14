@@ -71,7 +71,7 @@ this argument can be set globally via the \code{mc.cores} option.}
 that control several aspects of data validation and prediction.}
 }
 \value{
-
+prep object
 }
 \description{
 Get prep object
