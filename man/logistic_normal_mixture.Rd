@@ -4,7 +4,7 @@
 \alias{logistic_normal_mixture}
 \title{Construct a logistic normal mixture distribution}
 \usage{
-logistic_normal_mixture(x, theta, mu_list, Sigma_list)
+logistic_normal_mixture(x, theta, mu_list, Sigma_list, ...)
 }
 \arguments{
 \item{x}{data}
@@ -14,9 +14,11 @@ logistic_normal_mixture(x, theta, mu_list, Sigma_list)
 \item{mu_list}{(list of) location parameters}
 
 \item{Sigma_list}{(list of) shape parameters}
+
+\item{...}{additional parameters, currently not used}
 }
 \value{
-
+logistic normal mixture density
 }
 \description{
 Construct a logistic normal mixture distribution

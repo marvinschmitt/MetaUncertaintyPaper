@@ -19,7 +19,7 @@ c_prior = "aquamarine2"
 set.seed(1) # for reproductibility
 
 # Settings
-niter <- 1000
+niter <- 2000
 K = 200
 J = 3
 prior_model_prob = rep(1/J, J)
@@ -67,28 +67,55 @@ df_wide$true_model = factor(df_wide$true_model_idx, levels = c(1,2,3),
                                        )
                             )
 
+
+simulated_data_matrix = matrix(data = NA, nrow=K, ncol=n_days)
+for (j in 1:J){
+  model = M[[j]]
+  n_simulations = unname(table(df_wide$true_model)[j])
+  prior_predictive_fit = sampling(model,
+                                  data = c(sir_data, prior_predictive=1),
+                                  chains = 1,
+                                  iter = 5000 + n_simulations,
+                                  warmup=5000,
+                                  refresh=0,
+                                  show_messages=FALSE)
+  simulated_cases = rstan::extract(prior_predictive_fit)$pred_cases
+
+  simulated_data_matrix[which(df_wide$true_model_idx == j), ] = simulated_cases
+}
+
+colors = c("red", "green", "blue")
+plot(simulated_data_matrix[1, ], col = colors[df_wide$true_model_idx[1]], type="l",
+     ylim=c(0,800))
+for (k in 2:K){
+  lines(simulated_data_matrix[k, ], col = colors[df_wide$true_model_idx[k]], type="l")
+
+}
+
 for (k in 1:K){
   print(paste0("----------------— Run k = ", k, " ----------------—"))
   true_model_idx = df_wide$true_model_idx[k]
   print(paste0("True model: M", true_model_idx))
-  true_model = M[[true_model_idx]]
+  # true_model = M[[true_model_idx]]
 
-  true_model_prior_predictive_fit = sampling(true_model,
-                                  data = c(sir_data, prior_predictive=1),
-                                  chains = 1,
-                                  iter=1,
-                                  seed = k,
-                                  refresh = 0,
-                                  show_messages=FALSE)
-
-  simulated_cases = rstan::extract(true_model_prior_predictive_fit)$pred_cases[1, ]
+  # true_model_prior_predictive_fit = sampling(true_model,
+  #                                 data = c(sir_data, prior_predictive=1),
+  #                                 chains = 1,
+  #                                 iter=1,
+  #                                 seed = k,
+  #                                 refresh = 0,
+  #                                 show_messages=FALSE)
+  #
+  # simulated_cases = rstan::extract(true_model_prior_predictive_fit)$pred_cases[1, ]
   #plot(simulated_cases[1, ], ylim=c(0,200))
   #for (i in 1:100) lines(simulated_cases[i, ])
+
+  simulated_cases = simulated_data_matrix[k, ]
   simulated_data = list(n_days  = n_days, y0 = y0, t0 = t0, ts = t, N=N, cases=simulated_cases)
 
-  fit_1 = sampling(model_1, data = c(simulated_data, prior_predictive=0), chains = 4, iter = niter, seed = 0, refresh = 0, show_messages=FALSE)
-  fit_2 = sampling(model_2, data = c(simulated_data, prior_predictive=0), chains = 4, iter = niter, seed = 0, refresh = 0, show_messages=FALSE)
-  fit_3 = sampling(model_3, data = c(simulated_data, prior_predictive=0), chains = 4, iter = niter, seed = 0, refresh = 0, show_messages=FALSE)
+  fit_1 = sampling(M[[1]], data = c(simulated_data, prior_predictive=0), chains = 4, iter = niter, seed = 0, refresh = 0, show_messages=FALSE)
+  fit_2 = sampling(M[[2]], data = c(simulated_data, prior_predictive=0), chains = 4, iter = niter, seed = 0, refresh = 0, show_messages=FALSE)
+  fit_3 = sampling(M[[3]], data = c(simulated_data, prior_predictive=0), chains = 4, iter = niter, seed = 0, refresh = 0, show_messages=FALSE)
 
 
   logml_m1 = bridgesampling::bridge_sampler(fit_1, silent=TRUE)
@@ -96,7 +123,7 @@ for (k in 1:K){
   logml_m3 = bridgesampling::bridge_sampler(fit_3, silent=TRUE)
 
   pmp = brms::post_prob(logml_m1, logml_m2, logml_m3)
-  print(pmp %>% round(4))
+  print(pmp %>% round(4) %>% unname())
   df_wide$pmp1[k] = pmp[1]
   df_wide$pmp2[k] = pmp[2]
   df_wide$pmp3[k] = pmp[3]

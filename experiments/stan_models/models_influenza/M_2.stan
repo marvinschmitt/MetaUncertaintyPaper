@@ -53,9 +53,9 @@ transformed parameters{
 }
 model {
   //priors
-  beta ~ normal(2, 0.5);
-  gamma ~ normal(0.7, 0.3);
-  a ~ normal(6, 1);
+  beta ~ normal(2, 0.2);
+  gamma ~ normal(3, 0.2);
+  a ~ normal(5, 0.2);
   phi_inv ~ exponential(5);
   //p_reported ~ beta(1, 2);
   //i0 ~ normal(0, 2);

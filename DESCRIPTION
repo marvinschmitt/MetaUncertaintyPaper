@@ -2,7 +2,7 @@ Package: MetaUncertaintyPaper
 Type: Package
 Title: Code for "Meta-Uncertainty in Bayesian Model Comparison"
 Version: 0.0.1
-Authors@R: Anonymous Author <anonymous@author.com>
+Author: Anonymous Author <anonymous@author.com>
 Maintainer: Anonymous Author <anonymous@author.com>
 Description: This package contains the accompanying code for the paper
     "Meta-Uncertainty in Bayesian Model Comparison".
@@ -12,7 +12,7 @@ LazyData: true
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Imports: 
     brms,
     invgamma,

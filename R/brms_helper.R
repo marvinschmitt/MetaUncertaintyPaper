@@ -2,7 +2,7 @@
 #'
 #' @inheritParams brms::posterior_predict
 #'
-#' @return
+#' @return prep object
 #' @export
 get_prep <- function(
     object, newdata = NULL, re_formula = NULL, re.form = NULL,

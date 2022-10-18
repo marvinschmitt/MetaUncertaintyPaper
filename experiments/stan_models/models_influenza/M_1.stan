@@ -44,8 +44,8 @@ transformed parameters{
 }
 model {
   //priors
-  beta ~ normal(2, 0.5);
-  gamma ~ normal(0.7, 0.3);
+  beta ~ normal(2, 0.2);
+  gamma ~ normal(3, 0.2);
   phi_inv ~ exponential(5);
 
   //sampling distribution
