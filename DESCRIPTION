@@ -4,7 +4,7 @@ Title: Code for "Meta-Uncertainty in Bayesian Model Comparison"
 Version: 0.0.1
 Author: Anonymous Author <anonymous@author.com>
 Maintainer: Anonymous Author <anonymous@author.com>
-Description: This package contains the accompanying code for the paper
+Description: This package contains the accompanying code for the preprint
     "Meta-Uncertainty in Bayesian Model Comparison".
 License: GPL (>= 3)
 Encoding: UTF-8
@@ -22,6 +22,7 @@ Imports:
     dplyr,
     viridis,
     stringr,
-    latex2exp
+    latex2exp,
+    lubridate
 Depends: 
     R (>= 2.10)
