@@ -1,7 +1,7 @@
 #' Apply color map to continuous values
 #'
 #' @param x data
-#' @param n_colors number of colors
+#' @param n_colors number of colors for the palette
 #' @param color_palette_function callable: color palette function
 #'
 #' @return color codes for data `x`

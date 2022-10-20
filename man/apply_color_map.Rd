@@ -9,7 +9,7 @@ apply_color_map(x, n_colors = 1000, color_palette_function = viridis::viridis)
 \arguments{
 \item{x}{data}
 
-\item{n_colors}{number of colors}
+\item{n_colors}{number of colors for the palette}
 
 \item{color_palette_function}{callable: color palette function}
 }
