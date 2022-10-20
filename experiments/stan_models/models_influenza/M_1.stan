@@ -33,24 +33,21 @@ transformed data {
 parameters {
   real<lower=0> gamma;
   real<lower=0> beta;
-  real<lower=0> phi_inv;
 }
 transformed parameters{
   real y[n_days, 4];
-  real phi = 1. / phi_inv;
   real theta[2] = {beta, gamma};
 
   y = integrate_ode_rk45(sir, y0, t0, ts, theta, x_r, x_i);
 }
 model {
   //priors
-  beta ~ normal(2, 0.2);
-  gamma ~ normal(3, 0.2);
-  phi_inv ~ exponential(5);
+  target += normal_lpdf(beta | 2, 0.1) - normal_lccdf(0 | 2, 0.1);
+  target += normal_lpdf(gamma | 0.4, 0.1) - normal_lccdf(0 | 0.4, 0.1);
 
   //sampling distribution
   if (prior_predictive == 0){
-    cases ~ neg_binomial_2(col(to_matrix(y), 3), phi);
+    target += poisson_lpmf(cases | col(to_matrix(y), 3));
   }
 
 }
@@ -60,6 +57,6 @@ generated quantities {
   real pred_cases[n_days];
 
   //col(matrix x, int n) - The n-th column of matrix x. Here the number of infected people
-  pred_cases = neg_binomial_2_rng(col(to_matrix(y), 3) + 1e-5, phi);
+  pred_cases = poisson_rng(col(to_matrix(y), 3) + 1e-5);
 }
 
