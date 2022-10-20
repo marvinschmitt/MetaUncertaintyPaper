@@ -6,7 +6,7 @@ functions {
 
       real beta = theta[1];
       real gamma = theta[2];
-      real a = theta[3];
+      real eta = theta[3];
       //real i0 = theta[4];
       //real e0 = theta[5];
 
@@ -16,8 +16,8 @@ functions {
       real R = y[4];
 
       real dS_dt = -beta * I * S / N;
-      real dE_dt =  beta * I * S / N - a * E;
-      real dI_dt = a * E - gamma * I;
+      real dE_dt =  beta * I * S / N - eta * E;
+      real dI_dt = eta * E - gamma * I;
       real dR_dt =  gamma * I;
 
       return {dS_dt, dE_dt, dI_dt, dR_dt};
@@ -39,38 +39,31 @@ transformed data {
 parameters {
   real<lower=0> gamma;
   real<lower=0> beta;
-  real<lower=0> a;
-  real<lower=0> phi_inv;
-  //real<lower=0, upper=1> p_reported; // proportion of infected (symptomatic) people reported
-  //real<lower=0> i0; // number of infected people inititally
-  //real<lower=0> e0; // number of exposed people inititally
+  real<lower=0> eta;
 }
 transformed parameters{
   real y[n_days, 4];
-  real phi = 1. / phi_inv;
-  real theta[3] = {beta, gamma, a};//, i0, e0};
+  real theta[3] = {beta, gamma, eta};
+
   y = integrate_ode_rk45(seir, y0, t0, ts, theta, x_r, x_i);
 }
 model {
   //priors
-  beta ~ normal(2, 0.2);
-  gamma ~ normal(3, 0.2);
-  a ~ normal(5, 0.2);
-  phi_inv ~ exponential(5);
-  //p_reported ~ beta(1, 2);
-  //i0 ~ normal(0, 2);
-  //e0 ~ normal(0, 2);
-
+  target += normal_lpdf(beta | 3, 0.1) - normal_lccdf(0 | 3, 0.1);
+  target += normal_lpdf(gamma | 0.5, 0.1) - normal_lccdf(0 | 0.5, 0.1);
+  target += normal_lpdf(eta | 3, 0.1) - normal_lccdf(0 | 3, 0.1);
   //sampling distribution
-  //col(matrix x, int n) - The n-th column of matrix x. Here the number of infected people
-  if (prior_predictive ==0){
-    cases ~ neg_binomial_2(col(to_matrix(y), 3), phi);
+  if (prior_predictive == 0){
+    target += poisson_lpmf(cases | col(to_matrix(y), 3));
   }
+
 }
 generated quantities {
   real R0 = beta / gamma;
   real recovery_time = 1 / gamma;
-  real incubation_time = 1 / a;
   real pred_cases[n_days];
-  pred_cases = neg_binomial_2_rng(col(to_matrix(y), 3)+ 1e-5, phi);
+  real incubation_time = 1 / eta;
+  //col(matrix x, int n) - The n-th column of matrix x. Here the number of infected people
+  pred_cases = poisson_rng(col(to_matrix(y), 3) + 1e-5);
 }
+
