@@ -9,6 +9,5 @@
 <img src="inst/meta-uncertainty-figure-1.png" style="width:85.0%" />
 </center>
 
-This repository contains the accompanying code for the preprint
-*Meta-Uncertainty in Bayesian Model Comparison*:
-<https://arxiv.org/abs/2210.07278>
+This repository contains the code for the preprint *Meta-Uncertainty in
+Bayesian Model Comparison*: <https://arxiv.org/abs/2210.07278>

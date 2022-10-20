@@ -21,4 +21,4 @@ knitr::opts_chunk$set(
 ![](inst/meta-uncertainty-figure-1.png){ width=85% }
 </center>
 
-This repository contains the accompanying code for the preprint _Meta-Uncertainty in Bayesian Model Comparison_: [https://arxiv.org/abs/2210.07278](https://arxiv.org/abs/2210.07278)
+This repository contains the code for the preprint _Meta-Uncertainty in Bayesian Model Comparison_: [https://arxiv.org/abs/2210.07278](https://arxiv.org/abs/2210.07278)
