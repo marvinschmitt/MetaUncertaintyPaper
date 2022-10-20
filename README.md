@@ -3,7 +3,7 @@
 
 Meta-Uncertainty represents a fully probabilistic framework for quantifying the uncertainty over Bayesian posterior model probabilities (PMPs) using meta-models. Meta-models integrate simulated and observed data into a predictive distribution for new PMPs and help reduce overconfidence and estimate the PMPs in future replication studies. 
 
-# MetaUncertaintyPaper
+# Meta-Uncertainty Framework
 
 <!-- badges: start -->
 <!-- badges: end -->
