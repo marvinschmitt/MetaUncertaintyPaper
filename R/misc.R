@@ -11,3 +11,10 @@ flat_lower_triag_to_symmetric = function(lower_tri, nrow=2){
   out = out + t(out) - diag(diag(out), nrow=nrow(out))
   return (out)
 }
+
+#' Dummy function to test imports
+#' @return dummy message
+#' @export
+dummy_function = function(){
+  return("success!")
+}
