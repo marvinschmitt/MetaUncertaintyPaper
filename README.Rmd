@@ -17,7 +17,8 @@ knitr::opts_chunk$set(
 
 <!-- badges: start -->
 <!-- badges: end -->
+<center>
+![](inst/meta-uncertainty-figure-1.png){ width=85% }
+</center>
 
-![](output/plots/experiment-1-level-3-predictive-mixture-x-1.pdf){ width=32% }![](output/plots/experiment-1-level-3-predictive-mixture-x-2.pdf){ width=32% }![](output/plots/experiment-1-level-3-predictive-mixture-x-3.pdf){ width=32% }
-
-`MetaUncertaintyPaper` contains the accompanying code for the preprint _Meta-Uncertainty in Bayesian Model Comparison_: [https://arxiv.org/abs/2210.07278](https://arxiv.org/abs/2210.07278)
+This repository contains the accompanying code for the preprint _Meta-Uncertainty in Bayesian Model Comparison_: [https://arxiv.org/abs/2210.07278](https://arxiv.org/abs/2210.07278)

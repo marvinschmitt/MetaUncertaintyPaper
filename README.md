@@ -5,15 +5,10 @@
 
 <!-- badges: start -->
 <!-- badges: end -->
+<center>
+<img src="inst/meta-uncertainty-figure-1.png" style="width:85.0%" />
+</center>
 
-<embed
-src="output/plots/experiment-1-level-3-predictive-mixture-x-1.pdf"
-style="width:32.0%" /><embed
-src="output/plots/experiment-1-level-3-predictive-mixture-x-2.pdf"
-style="width:32.0%" /><embed
-src="output/plots/experiment-1-level-3-predictive-mixture-x-3.pdf"
-style="width:32.0%" />
-
-`MetaUncertaintyPaper` contains the accompanying code for the preprint
+This repository contains the accompanying code for the preprint
 *Meta-Uncertainty in Bayesian Model Comparison*:
 <https://arxiv.org/abs/2210.07278>
