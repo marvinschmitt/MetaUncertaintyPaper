@@ -12,6 +12,14 @@
 This repository contains the code for the paper *Meta-Uncertainty in
 Bayesian Model Comparison*: <https://arxiv.org/abs/2210.07278>
 
+In order to reduce both the computational and setup effort for
+replicating the experiments, we include RData objects and checkpoints
+for the evidential neural networks.
+
+Note that the R code is structured as a package, thus requiring a local
+installation with subsequent loading via
+`library(MetaUncertaintyPaper)`.
+
 ## Installation Instructions
 
 ### R environment
