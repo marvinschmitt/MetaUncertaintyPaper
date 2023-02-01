@@ -2,8 +2,12 @@ Package: MetaUncertaintyPaper
 Type: Package
 Title: Code for "Meta-Uncertainty in Bayesian Model Comparison"
 Version: 0.0.1
-Author: Anonymous Author <anonymous@author.com>
-Maintainer: Anonymous Author <anonymous@author.com>
+Authors@R: 
+    c(person("Marvin", "Schmitt", email = "mail.marvinschmitt@gmail.com",
+             role = c("aut", "cre")),
+      person("Paul-Christian", "Bürkner", role = c("aut")),
+      person("Stefan T.", "Radev", role = c("aut"))
+      )
 Description: This package contains the accompanying code for the preprint
     "Meta-Uncertainty in Bayesian Model Comparison".
 License: GPL (>= 3)
