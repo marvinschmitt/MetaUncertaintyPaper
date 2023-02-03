@@ -18,6 +18,14 @@ installation with subsequent loading via
 
 ## Installation Instructions
 
+### The `{ggsimplex}` plot package
+
+The current paper code uses a highly experimental version of the
+[ggsimplex](https://github.com/marvinschmitt/ggsimplex) R package.
+Install it from GitHub via
+
+    devtools::install_github('marvinschmitt/ggsimplex')
+
 ### R environment
 
 The R environment is captured with `renv`. Install the `renv` package
