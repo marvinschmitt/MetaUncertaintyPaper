@@ -100,9 +100,9 @@ save(simulated_data_matrix, file="output/computations/experiment-2-simulated_dat
 # }
 
 # visualize simulated data ----
-# load("output/computations/experiment-2-M.RData")
-# load("output/computations/experiment-2-df_wide.RData")
-# load("output/computations/experiment-2-simulated_data_matrix.RData")
+load("output/computations/experiment-2-M.RData")
+load("output/computations/experiment-2-df_wide.RData")
+load("output/computations/experiment-2-simulated_data_matrix.RData")
 simulated_data_matrix = simulated_data_matrix[1:100, ] # assert K = 100 sims
 d = cbind(df_wide %>% dplyr::select(k, true_model_idx),
       data.frame(simulated_data_matrix)) %>%
